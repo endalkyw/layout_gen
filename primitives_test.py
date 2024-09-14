@@ -19,7 +19,7 @@ lib = gdstk.Library(name="LibraryName", unit=1e-9, precision=1e-12)
 cell_i = lib.new_cell("base_cell")
 
 # g_t = "cm"
-g_t = "dp_0"
+# g_t = "dp_0"
 # g_t = "dp_1"
 g_t = "dp_2"
 
