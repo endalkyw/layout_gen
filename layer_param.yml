@@ -1,0 +1,109 @@
+fins:
+  pitch: 48
+  width: 14
+  dummies: 3
+  layer_no: "42:12"
+
+poly:
+  pitch: 78
+  width: 14
+  dummies: 3
+  layer_no: "7:0"
+
+CA:
+  pitch: 78
+  width: 34
+  layer_no: "14:0"
+  thickness: 34
+
+CB:
+  layer_no: "245:0"
+  width: 30
+
+CT:
+  height: 94
+  layer_no: "247:0"
+
+AUXPC:
+  ext_len: 60
+  layer_no: "7:83"
+
+RX:
+  layer_no: "2:0"
+
+RXFIN:
+  layer_no: "2:42"
+
+TI:
+  layer_no: "132:0"
+
+BP:
+  layer_no: "10:0"
+
+NW:
+  layer_no: "4:0"
+
+TT:
+  layer_no: "99:0"
+
+RVT:
+  layer_no: "12:164"
+
+UNK:
+  layer_no: "62:20"
+
+UNK_1:
+  layer_no: "212:121"
+
+UNK_2:
+  layer_no:
+
+M1:
+  pitch: 78
+  width: 32
+  thickness: 32
+  layer_no: "15:0"
+
+M2:
+  pitch: 78
+  width: 32
+  thickness: 32
+  layer_no: "17:0"
+
+M3:
+  pitch: 32
+  width: 32
+  thickness: 40
+  layer_no: "18:0"
+
+M4:
+  pitch: 32
+  width: 32
+  thickness: 40
+  layer_no: "19:0"
+
+V0:
+  length: 32
+  layer_no: "35:0"
+  pitch: 94
+
+V1:
+  length: 32
+  layer_no: "16:0"
+  pitch: 94
+
+V3:
+  length:32
+
+M1LABEL:
+  layer_no: "15:20"
+
+Colors:
+   2: '#b0dcff'
+   7: '#5c5429'
+   14: 'green'
+   15: '#322f99'
+   17: 'red'
+   35: 'red'
+   132: '#b0f5d7'
+   999: '#0077be'
