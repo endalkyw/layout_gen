@@ -13,24 +13,36 @@ from multiple_layout_generator import *
 from core.base_cell import *
 
 
-# generate_cm_layouts(10, 10, 2, "N", source_first=True)
+# ----------------------- create base layout test---------------------------------------------
+# cell = create_empty_cell("base_cell",unit=1e-9, precision=1e-12)
+# inputs = {
+#     "cell"          :   cell,
+#     "total_fingers" :   8,
+#     "total_fins"    :   8,
+#     "mos_type"      :   "P",
+#     "stack"         :   2,
+#     "multiplier"    :   4,
+#     "orientation"   :   "V",
+#     "gate_type"     :   "dp_2",    # "cm" "dp_0" "dp_1" "dp_2"
+#     "body_contact"  :   False
+# }
+# points = create_base_layout(**inputs)
+# write_gds(cell, "base_cell")
+#
+# for i in points:
+#     print(i)
+# ---------------------------------------------------------------------------------------------
 
-lib = gdstk.Library(name="LibraryName", unit=1e-9, precision=1e-12)
-cell_i = lib.new_cell("base_cell")
 
-# g_t = "cm"
-# g_t = "dp_0"
-# g_t = "dp_1"
-g_t = "dp_2"
-
-create_base_layout(cell_i, 12, 6, "N", gate_type=g_t, stack=1, multiplier=4, orientation="V", body_contact = False)
-write_gds(cell_i, "base_cell")
-
-
+# ---------------------------------------------------------------------------------------------
 # For single mos test
-# m0 = Mos({'id': 'A', 'fins': 10, 'fingers': 19, 'stack': 2, 'multiplier': 3, 'mos_type': "N"})
-# cell = create_mos(m0, labels=["d", 0, 0, "s"], con=[1,1,1,1], orientation="V")
-# write_gds(cell, "nmos")
+m0 = Mos({'id': 'A', 'fins': 10, 'fingers': 19, 'stack': 1, 'multiplier': 1, 'mos_type': "N"})
+cell = create_mos(m0, labels=["d", 0, 0, "s"], con=[1,1,1,1], orientation="V")
+write_gds(cell, "nmos")
+# ---------------------------------------------------------------------------------------------
+
+
+
 
 
 # For single current mirror test
@@ -47,3 +59,8 @@ write_gds(cell_i, "base_cell")
 # c1 = differential_pair(m0, m1, "test_dp")
 # c1.create_layout(0)
 # write_gds(c1.cell, "nmos_dp")
+
+
+
+
+# generate_cm_layouts(10, 10, 2, "N", source_first=True)
