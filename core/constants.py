@@ -13,16 +13,17 @@ class Const:
     gate_h1 = 160
     rx_m1   = 23
     rx_po   = 71
-    bulk_h1 = 250  # bulk height yf + bulk_h
-    bulk_h2 = 320  # the bulk height yf + bulk_h
+    bulk_h1 = 284  # bulk height yf + bulk_h
+    bulk_h2 = 380  #320 the bulk height yf + bulk_h
     po_cb   = 20   # cb extension from the cb
-    ct_h0  = 115  #107 poly cut height from y_f
-    ct_h1  = 200  #180 poly cut height from y_f 2
+    ct_h0  = 162  # 115 107 poly cut height from y_f
+    ct_h1  = 258  # 258 200, 180 poly cut height from y_f 2
     ct_hb  = 80   # bottom poly cut dist from y_i
 
     gate_m1_len = 80  # m1 connector gate length
 
-    v_mult_space = 5
-    h_mult_space = 3
+    v_mult_space   = 7
+    v_mult_space_2 = 9
+    h_mult_space   = 3
     # mos.py - to generate a single mosfet
 

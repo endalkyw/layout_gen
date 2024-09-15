@@ -180,11 +180,12 @@ def create_base_layout(cell, total_fingers, total_fins, mos_type, stack = 1, mul
 
     delta  = 0
     anchor_points =  []
-    for i in range(multiplier):
-        cell_i = create_empty_cell("single_nmos", unit=1e-9, precision=1e-12)
-        ext_len = (lp['poly']['dummies'] - 1) * lp['poly']['pitch'] + 46
+    ext_len = (lp['poly']['dummies'] - 1) * lp['poly']['pitch'] + 46
 
-        if orientation == "V":
+    if orientation == "V":
+        for i in range(multiplier):
+            cell_i = create_empty_cell("single_nmos", unit=1e-9, precision=1e-12)
+
             contact_points = create_cell(cell_i, bulk_on=(i + 1) // multiplier)
             p = cell_i.bounding_box()
 
@@ -201,10 +202,16 @@ def create_base_layout(cell, total_fingers, total_fins, mos_type, stack = 1, mul
             transform_contact_points(contact_points, 0, delta)
             anchor_points.append(contact_points)
 
-            delta += p[1][1] + C.v_mult_space*lp["fins"]["pitch"]
 
+            if gate_type == "cm" or gate_type == "dp_0":
+                delta = contact_points["p1"][0][1] + C.v_mult_space*lp["fins"]["pitch"]
+            else:
+                delta = contact_points["p1"][0][1] + C.v_mult_space_2*lp["fins"]["pitch"]
 
-        elif orientation == "H":
+    elif orientation == "H":
+        for i in range(multiplier):
+            cell_i = create_empty_cell("single_nmos", unit=1e-9, precision=1e-12)
+
             contact_points = create_cell(cell_i, bulk_on=True)
             p = cell_i.bounding_box()
 
@@ -217,14 +224,51 @@ def create_base_layout(cell, total_fingers, total_fins, mos_type, stack = 1, mul
                            (x_f + ext_len, y_f + C.ct_h0 + lp['CT']['height']), "CT")
             else:
                 add_region(cell_i, (x_i - ext_len, y_f + C.ct_h1),
-                               (x_f + ext_len, y_f + C.ct_h1 + lp['CT']['height']), "CT")\
+                               (x_f + ext_len, y_f + C.ct_h1 + lp['CT']['height']), "CT")
 
 
             add_transformed_polygons(cell_i, cell, (delta, 0))
             transform_contact_points(contact_points, delta, 0)
             anchor_points.append(contact_points)
 
-            delta += p[1][0] + C.h_mult_space*lp["poly"]["pitch"]
+            delta = contact_points["p1"][0][0] + C.v_mult_space * lp["fins"]["pitch"]
+
+    elif orientation == "VH":
+        delta_y = 0
+        for i in range(multiplier//2):
+            delta_x = 0
+            for j in range(multiplier//2):
+                cell_i = create_empty_cell("single_nmos", unit=1e-9, precision=1e-12)
+                contact_points = create_cell(cell_i, bulk_on= ((i+1)==multiplier//2))
+                p = cell_i.bounding_box()
+
+                # bottom CT
+                add_region(cell_i, (x_i - ext_len, y_i - C.ct_hb - lp['CT']['height']), (x_f + ext_len, y_i - C.ct_hb),
+                           "CT")
+                # top CT
+                if i == multiplier//2 - 1:
+                    # top CT
+                    if gate_type == "cm" or gate_type == "dp_0":
+                        add_region(cell_i, (x_i - ext_len, y_f + C.ct_h0),
+                                   (x_f + ext_len, y_f + C.ct_h0 + lp['CT']['height']), "CT")
+                    else:
+                        add_region(cell_i, (x_i - ext_len, y_f + C.ct_h1),
+                                   (x_f + ext_len, y_f + C.ct_h1 + lp['CT']['height']), "CT")
+
+                add_transformed_polygons(cell_i, cell, (delta_x, delta_y))
+                transform_contact_points(contact_points, delta_x, delta_y)
+                anchor_points.append(contact_points)
+
+                delta_x = contact_points["p1"][0][0] + C.h_mult_space * lp["poly"]["pitch"]
+
+
+            if gate_type == "cm" or gate_type == "dp_0":
+                delta_y = contact_points["p1"][0][1] + C.v_mult_space*lp["fins"]["pitch"]
+            else:
+                delta_y = contact_points["p1"][0][1] + C.v_mult_space_2*lp["fins"]["pitch"]
+
+
+
 
 
     p = cell.bounding_box()
