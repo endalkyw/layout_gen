@@ -73,14 +73,14 @@ M2:
 M3:
   pitch: 32
   width: 32
-  thickness: 40
-  layer_no: "18:0"
+  thickness: 32
+  layer_no: "19:0"
 
 M4:
   pitch: 32
   width: 32
   thickness: 40
-  layer_no: "19:0"
+  layer_no: "21:0"
 
 V0:
   length: 32
@@ -92,8 +92,15 @@ V1:
   layer_no: "16:0"
   pitch: 94
 
+V2:
+  length: 32
+  layer_no: "18:0"
+  pitch: 94
+
 V3:
-  length:32
+  length: 32
+  layer_no: "20:0"
+  pitch: 94
 
 M1LABEL:
   layer_no: "15:20"

@@ -5,6 +5,7 @@ import yaml
 import matplotlib.pyplot as plt
 from utilities.pvector import P
 # from core.constants import Const as C
+from shapely.geometry import box
 
 base_dir = os.path.dirname(os.path.abspath(__file__))
 f = n_file = os.path.join(base_dir, '../layer_param.yml')
@@ -204,20 +205,21 @@ def fill_with_v_M1_array(cell, rect: list, pitch, n, name: str):
    for i in range(n):
        fill_v_metals(cell, [(rect[0][0]+i*pitch, rect[0][1]), (rect[1][0]+i*pitch, rect[1][1])], name)
 
+def get_intersection(rect1, rect2):
+    # Convert rectangles to Shapely box objects
+    rect1_box = box(*rect1[0], *rect1[1])
+    rect2_box = box(*rect2[0], *rect2[1])
+
+    # Compute intersection
+    intersection = rect1_box.intersection(rect2_box)
+
+    return intersection
 
 class Contact_region:
-    def __init__(self, name, left_bottom_corner, right_top_corner):
-        self.name = name
-        self.x_i = left_bottom_corner[0]
-        self.y_i = left_bottom_corner[1]
-        self.x_f = right_top_corner[0]
-        self.y_f = right_top_corner[1]
+    def __init__(self, id, rect):
+        self.id = id
+        self.rect = rect
 
-    def add_offset(self, offset: P):
-        self.x_i += offset.x
-        self.y_i += offset.y
-        self.x_f += offset.x
-        self.y_f += offset.y
 
 
 class Mos:

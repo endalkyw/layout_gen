@@ -94,3 +94,37 @@ def fill_with_vias_array(cell, di: str, bottom_left_coord: tuple, top_right_coor
     for i in range(n):
         r = [(bottom_left_coord[0]+i*pitch, bottom_left_coord[1]), (top_right_coord[0]+i*pitch, top_right_coord[1])]
         fill_area_vias(cell, r, name)
+
+
+def add_vias_at_intersection(cell, rect, metal):
+    l = lp[metal]["layer_no"].split(":")
+    polygon_1 = gdstk.Polygon([rect[0], (rect[1][0], rect[0][1]), rect[1],(rect[0][0],rect[1][1])])
+
+    for polygon_2 in cell.polygons:
+        if polygon_2.layer == int(l[0]) and polygon_2.datatype == int(l[1]):
+            intersection_polygons = gdstk.boolean([polygon_1], [polygon_2], "and")
+            if intersection_polygons:
+                p = intersection_polygons[0].points
+                if metal == "M1":
+                    add_via(cell, p[2],"V1")
+                if metal == "M2":
+                    add_via(cell, p[2],"V2")
+
+                # for debugging purpose
+                # rect = gdstk.rectangle((p[0][0], p[0][1]),(p[2][0],p[2][1]))
+                # cell.add(rect)
+
+
+
+def add_vias_at_recti_v_rectj(cell, rect_i, rect_j, metal):
+    polygon_1 = gdstk.Polygon([rect_i[0], (rect_i[1][0], rect_i[0][1]), rect_i[1],(rect_i[0][0],rect_i[1][1])])
+    polygon_2 = gdstk.Polygon([rect_j[0], (rect_j[1][0], rect_j[0][1]), rect_j[1],(rect_j[0][0],rect_j[1][1])])
+    intersection_polygons = gdstk.boolean([polygon_1], [polygon_2], "and")
+    if intersection_polygons:
+        p = intersection_polygons[0].points
+        if metal == "M1":
+            add_via(cell, p[2],"V1")
+        elif metal == "M2":
+            add_via(cell, p[2],"V2")
+        elif metal == "M3":
+            add_via(cell, p[2],"V3")
