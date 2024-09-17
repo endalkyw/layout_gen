@@ -109,11 +109,26 @@ M2LABEL:
   layer_no: "16:20"
 
 Colors:
-   2: '#b0dcff'
-   7: '#5c5429'
-   14: 'green'
-   15: '#322f99'
-   17: 'red'
-   35: 'red'
-   132: '#b0f5d7'
-   999: '#0077be'
+   7  : "#FF0000"
+   2  : "#0000FF"
+   15 : "#0000FF"
+   14 : "#A52A2A"
+   17 : "#A52A2A"
+   35 : "#FF0000"
+   16 : "#FFA500"
+   18 : "#00FFFF"
+   19 : "#00FFFF"
+   132: "#808080"
+   999: "#800080"
+
+
+#FF0000 (Red)
+#0000FF (Blue)
+#00FF00 (Green)
+#FFFF00 (Yellow)
+#FF00FF (Magenta)
+#00FFFF (Cyan)
+#FFA500 (Orange)
+#800080 (Purple)
+#A52A2A (Brown)
+#808080 (Gray)

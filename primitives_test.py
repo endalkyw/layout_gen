@@ -1,3 +1,4 @@
+import matplotlib.pyplot as plt
 import numpy as np
 from joblib import Memory
 from primitives.mos import *
@@ -35,15 +36,16 @@ from core.base_cell import *
 
 
 ## ---------------------------------------------------------------------------------------------
-# # Single MOS Test
-m0 = Mos({'id': 'A', 'fins': 10, 'fingers': 8, 'stack': 2, 'multiplier': 3, 'mos_type': "N"})
-cell, contact_rects = create_mos(m0, labels=["d", "g", "s", "b"], con=[1, 1, 1, 1], orientation="V", fabric_on=True)
-write_gds(cell, "nmos")
-
-
-plt.rcParams['figure.facecolor'] = 'black'  # Set figure background
-plt.rcParams['axes.facecolor'] = 'black'    # Set axes background
-show_layout(cell, fig_size=(6,4))
+# # # Single MOS Test
+# m0 = Mos({'id': 'A', 'fins': 10, 'fingers': 8, 'stack': 2, 'multiplier': 3, 'mos_type': "N"})
+# cell, contact_rects = create_mos(m0, labels=["d", "g", "s", "b"], con=[1, 1, 1, 1], orientation="V", fabric_on=True)
+# write_gds(cell, "nmos")
+#
+#
+# plt.rcParams['figure.facecolor'] = 'black'  # Set figure background
+# plt.rcParams['axes.facecolor'] = 'black'    # Set axes background
+# show_layout(cell, fig_size=(6,4))
+# plt.savefig("outputs/trial_nmos.png")
 ## ---------------------------------------------------------------------------------------------
 
 
@@ -51,11 +53,16 @@ show_layout(cell, fig_size=(6,4))
 
 # ---------------------------------------------------------------------------------------------
 # For single current mirror test
-# m0 = Mos({'id': 'A', 'fins': 10, 'fingers': 8, 'stack': 1, 'multiplier': 3, 'mos_type': "N"})
-# m1 = Mos({'id': 'A', 'fins': 10, 'fingers': 8, 'stack': 1, 'multiplier': 3, 'mos_type': "N"})
-# c1 = current_mirror(m0, m1, "test_cm")
-# c1.create_layout(5, labels=("d0", "d1", "s"), con=[1, 1, 1])
-# write_gds(c1.cell, "nmos")
+m0 = Mos({'id': 'A', 'fins': 10, 'fingers': 8, 'stack': 1, 'multiplier': 3, 'mos_type': "N"})
+m1 = Mos({'id': 'A', 'fins': 10, 'fingers': 8, 'stack': 1, 'multiplier': 3, 'mos_type': "N"})
+c1 = current_mirror(m0, m1, "test_cm")
+c1.create_layout(1, labels=("d0", "d1", "s"), con=[1, 1, 1])
+write_gds(c1.cell, "nmos")
+
+plt.rcParams['figure.facecolor'] = 'black'  # Set figure background
+plt.rcParams['axes.facecolor'] = 'black'    # Set axes background
+show_layout(c1.cell, fig_size=(6,4))
+plt.savefig("outputs/trial_cm2.png")
 # ---------------------------------------------------------------------------------------------
 
 
