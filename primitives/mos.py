@@ -1,3 +1,4 @@
+import gdstk
 import numpy as np
 
 from utilities.elements_utils import *
@@ -8,6 +9,7 @@ from utilities.via import *
 from utilities.elements_utils import Contact_region as CR
 import math
 from shapely.geometry.polygon import Polygon
+from utilities.pin import find_best_point as fbp
 
 def create_mos(m, fabric_on = True, con= [1, 1, 1, 1], labels = [0, 0, 0, 0], orientation = "V", gate_connection_type = "cm"):
     cell_i = create_empty_cell("single_nmos", unit=1e-9,  precision=1e-12)
@@ -122,11 +124,76 @@ def create_mos(m, fabric_on = True, con= [1, 1, 1, 1], labels = [0, 0, 0, 0], or
                     add_vias_at_recti_v_rectj(cell_i, contact_rects[i].rect, contact_rects[j].rect, "M2")
 
 
+    elif orientation == "H":
+        for i in range(len(contact_rects)):
+            for j in range(i+1, len(contact_rects)):
+                if(contact_rects[i].id == contact_rects[j].id) and (contact_rects[i].rect[0][1] == contact_rects[j].rect[0][1]):
+                    ri = [((contact_rects[i].rect[1][0]+contact_rects[i].rect[0][0])/2,contact_rects[i].rect[0][1]),
+                          ((contact_rects[j].rect[1][0]+contact_rects[j].rect[0][0])/2,contact_rects[i].rect[1][1])]
+                    add_region(cell_i, ri[0], ri[1], "M2")
 
-        #
-        # elif orientation == "H":
-        #
-        #
+
+
+
+
+
+
+
+    # Adding labels on metal2
+    source_rects = []
+    drain_rects = []
+    gate_rects = []
+    bulk_rects = []
+    for cr in contact_rects:
+        if (cr.rect[1][0] - cr.rect[0][0]) > (cr.rect[1][1] - cr.rect[0][1]): # check if it's horizontal
+            if cr.id == "s":
+                source_rects.append(cr.rect)
+            elif cr.id == "d":
+                drain_rects.append(cr.rect)
+            elif cr.id == "g":
+                gate_rects.append(cr.rect)
+            elif cr.id == "b":
+                bulk_rects.append(cr.rect)
+
+    best_s, _, _ = fbp(source_rects)
+    best_d, _, _ = fbp(drain_rects)
+    best_g, _, _ = fbp(gate_rects)
+    best_b, _, _ = fbp(bulk_rects)
+
+    # labels: d g s b
+    if labels[0]:
+        add_label(cell_i, labels[0], P(best_d[0], best_d[1]), "M2LABEL")
+    if labels[1]:
+        add_label(cell_i, labels[1], P(best_g[0], best_g[1]), "M2LABEL")
+    if labels[2]:
+        add_label(cell_i, labels[2], P(best_s[0], best_s[1]), "M2LABEL")
+    if labels[3]:
+        add_label(cell_i, labels[3], P(best_b[0], best_b[1]), "M2LABEL")
+
+    # print(best_point_s)
+    # print(best_point_d)
+    # print(best_point_g)
+    # print(best_point_b)
+    #
+    # circ_s = gdstk.ellipse(best_point_s, 10)
+    # circ_g = gdstk.ellipse(best_point_g, 10)
+    # circ_d = gdstk.ellipse(best_point_d, 10)
+    # circ_b = gdstk.ellipse(best_point_b, 10)
+    #
+    # cell_i.add(circ_s)
+    # cell_i.add(circ_g)
+    # cell_i.add(circ_b)
+    # cell_i.add(circ_d)
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -147,7 +214,8 @@ def create_mos(m, fabric_on = True, con= [1, 1, 1, 1], labels = [0, 0, 0, 0], or
         y_ = (0 + 1) * lp['fins']['dummies'] * lp["fins"]["pitch"] - (lp['fins']['pitch'] - lp['fins']['width'])/2
     add_transformed_polygons(cell_i, cell, (x_, y_))
 
-    return cell
+
+    return cell, contact_rects
 
 
 

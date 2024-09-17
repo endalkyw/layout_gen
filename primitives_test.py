@@ -12,17 +12,17 @@ from functools import wraps
 from multiple_layout_generator import *
 from core.base_cell import *
 
-
-# # ----------------------- create base layout test---------------------------------------------
+# ---------------------------------------------------------------------------------------------
+# Base Layout Test---------------------------------------------
 # cell = create_empty_cell("base_cell",unit=1e-9, precision=1e-12)
 # inputs = {
 #     "cell"          :   cell,
-#     "total_fingers" :   12,
+#     "total_fingers" :   14,
 #     "total_fins"    :   10,
 #     "mos_type"      :   "N",
 #     "stack"         :   1,
-#     "multiplier"    :   10,
-#     "orientation"   :   "VH",
+#     "multiplier"    :   4,
+#     "orientation"   :   "V",
 #     "gate_type"     :   "cm",    # "cm" "dp_0" "dp_1" "dp_2"
 #     "body_contact"  :   False
 # }
@@ -33,28 +33,33 @@ from core.base_cell import *
 #     print(i)
 ## ---------------------------------------------------------------------------------------------
 
-# ---------------------------------------------------------------------------------------------
-# For single mos test
-m0 = Mos({'id': 'A', 'fins': 10, 'fingers': 18, 'stack': 1, 'multiplier': 5, 'mos_type': "N"})
-cell = create_mos(m0, labels=["d", 0, 0, "s"], con=[2, 2, 2, 1], orientation="V", fabric_on=True)
+
+## ---------------------------------------------------------------------------------------------
+# # Single MOS Test
+m0 = Mos({'id': 'A', 'fins': 10, 'fingers': 8, 'stack': 2, 'multiplier': 3, 'mos_type': "N"})
+cell, contact_rects = create_mos(m0, labels=["d", "g", "s", "b"], con=[1, 1, 1, 1], orientation="V", fabric_on=True)
 write_gds(cell, "nmos")
 
 
-# plt.rcParams['figure.facecolor'] = 'black'  # Set figure background
-# plt.rcParams['axes.facecolor'] = 'black'    # Set axes background
-# show_layout(cell, fig_size=(6,4))
+plt.rcParams['figure.facecolor'] = 'black'  # Set figure background
+plt.rcParams['axes.facecolor'] = 'black'    # Set axes background
+show_layout(cell, fig_size=(6,4))
+## ---------------------------------------------------------------------------------------------
+
+
+
+
+# ---------------------------------------------------------------------------------------------
+# For single current mirror test
+# m0 = Mos({'id': 'A', 'fins': 10, 'fingers': 8, 'stack': 1, 'multiplier': 3, 'mos_type': "N"})
+# m1 = Mos({'id': 'A', 'fins': 10, 'fingers': 8, 'stack': 1, 'multiplier': 3, 'mos_type': "N"})
+# c1 = current_mirror(m0, m1, "test_cm")
+# c1.create_layout(5, labels=("d0", "d1", "s"), con=[1, 1, 1])
+# write_gds(c1.cell, "nmos")
 # ---------------------------------------------------------------------------------------------
 
 
 
-
-
-# For single current mirror test
-# m0 = Mos({'id': 'A', 'fins': 10, 'fingers': 4, 'stack': 1, 'multiplier': 1, 'mos_type': "N"})
-# m1 = Mos({'id': 'A', 'fins': 10, 'fingers': 4, 'stack': 1, 'multiplier': 1, 'mos_type': "N"})
-# c1 = current_mirror(m0, m1, "test_cm")
-# c1.create_layout(1, ("d0", "d1", "s"), [1, 1, 1], 1, True)
-# write_gds(c1.cell, "nmos")
 
 
 # For single differential pair test
