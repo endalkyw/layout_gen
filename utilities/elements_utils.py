@@ -6,6 +6,8 @@ import matplotlib.pyplot as plt
 from utilities.pvector import P
 # from core.constants import Const as C
 from shapely.geometry import box
+from shapely.geometry import Point, Polygon
+import numpy as np
 
 base_dir = os.path.dirname(os.path.abspath(__file__))
 f = n_file = os.path.join(base_dir, '../layer_param.yml')
@@ -216,9 +218,84 @@ def get_intersection(rect1, rect2):
     return intersection
 
 class Contact_region:
-    def __init__(self, id, rect):
+    def __init__(self, id, rect, metal="x"):
         self.id = id
         self.rect = rect
+        self.metal = metal
+
+    def translate(self, xoff, yoff):
+        rect_ = [[0,0],[0,0]]
+        rect_[0][0] = self.rect[0][0] + xoff
+        rect_[1][0] = self.rect[1][0] + xoff
+        rect_[0][1] = self.rect[0][1] + yoff
+        rect_[1][1] = self.rect[1][1] + yoff
+        self.rect = rect_
+
+def find_center_n_span_rects(rectangles):
+    ''' Just give a list of rectangles with two corners and get
+    the center point both in y and x in the rectangle '''
+    def find_max_min(rectangles):
+        x_min = float('inf')
+        x_max = float('-inf')
+        y_min = float('inf')
+        y_max = float('-inf')
+        for r in rectangles:
+            if min(r[0][0], r[1][0]) < x_min:
+                x_min = min(r[0][0], r[1][0])
+            if max(r[0][0], r[1][0]) > x_max:
+                x_max =  max(r[0][0], r[1][0])
+
+            if min(r[0][1], r[1][1]) < y_min:
+                y_min = min(r[0][1], r[1][1])
+            if max(r[0][1], r[1][1]) > y_max:
+                y_max = max(r[0][1], r[1][1])
+
+        return [[x_min, y_min], [x_max, y_max]]
+
+    def rectangle_center(rect):
+        center_x = (rect[1][0] + rect[0][0]) / 2
+        center_y = (rect[1][1] + rect[0][1]) / 2
+        return (center_x, center_y)
+
+    def is_point_inside_rect(rect, pt):
+        rectangle = Polygon([rect[0], (rect[1][0], rect[0][1]), rect[1], (rect[0][0], rect[1][1])])
+        point = Point(pt[0], pt[1])
+        return rectangle.contains(point)
+
+    best_center = 0
+    centers = [rectangle_center(rect) for rect in rectangles]
+    median_x = np.median([center[0] for center in centers])
+    median_y = np.median([center[1] for center in centers])
+    median_center = (median_x, median_y)
+
+    for rect in rectangles:
+        if is_point_inside_rect(rect, median_center):
+            best_center = median_center
+            break
+
+        else:
+            best_center = centers[np.argmin(np.linalg.norm(np.array(centers)-np.array(median_center),  axis=1))]
+
+    return best_center, find_max_min(rectangles)
+
+
+
+def divide_line(xi:int, xf:int, n: int, ext: float, m: str):
+    '''
+    xi: initial point, xf: final point n: number of metals ext: extension m: metal string
+    return: list, the initial coordinates on the line
+    '''
+    l = xf - xi
+    width = lp[m]["width"]
+    pitch = lp[m]["pitch"]
+    delta = l - 2*ext
+    num = min((delta-width)//pitch + 1, n)
+
+    xi = (delta - ((num-1)*pitch + width))/2 + ext + xi
+    li = [xi+i*pitch for i in range(num)]
+
+    return li
+
 
 
 

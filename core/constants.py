@@ -5,7 +5,7 @@ class Const:
     m_v_ext = 20 # metal extension from the via edge
     m_m_ext = 20 # H and V metal connection extension
     v_mrgn  = 20 # via margin, metal edge to via distance
-
+    mm_overlap = 10 # overlap length between two same layer metals
 
     # for the base_cell generator
     dist_0  = 44

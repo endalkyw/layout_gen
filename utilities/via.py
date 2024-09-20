@@ -119,6 +119,7 @@ def add_vias_at_recti_v_rectj(cell, rect_i, rect_j, metal):
     polygon_1 = gdstk.Polygon([rect_i[0], (rect_i[1][0], rect_i[0][1]), rect_i[1],(rect_i[0][0],rect_i[1][1])])
     polygon_2 = gdstk.Polygon([rect_j[0], (rect_j[1][0], rect_j[0][1]), rect_j[1],(rect_j[0][0],rect_j[1][1])])
     intersection_polygons = gdstk.boolean([polygon_1], [polygon_2], "and")
+
     if intersection_polygons:
         p = intersection_polygons[0].points
         if metal == "M1":

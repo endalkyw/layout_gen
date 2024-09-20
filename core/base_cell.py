@@ -82,7 +82,7 @@ def create_base_layout(cell, total_fingers, total_fins, mos_type, stack = 1, mul
                              total_fingers+1, stack*lp["CA"]["pitch"], "V0")
 
         contact_points["s"].append([C.rx_m1, y_i])
-        contact_points["d"].append([C.rx_m1+lp["M1"]["pitch"], y_i])
+        contact_points["d"].append([C.rx_m1+(stack)*lp["M1"]["pitch"], y_i])
 
 
         # add gate connectors
@@ -101,7 +101,7 @@ def create_base_layout(cell, total_fingers, total_fins, mos_type, stack = 1, mul
             r0 = (d1, y_f + C.gate_h0), (d1 + l_x - lp["M1"]["width"], y_f + C.gate_h0+lp["CB"]["width"])
             add_region(cell_i, r0[0], r0[1], "CB")
             fill_area_vias(cell_i, r0, "V0")
-            fill_area_vias(cell_i, r0, "V0")
+            # fill_area_vias(cell_i, r0, "V0")
             fill_v_metals(cell_i, r0, "M1")
             contact_points["g"].append(list(r0[0]))
 
