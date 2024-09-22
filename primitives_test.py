@@ -49,15 +49,13 @@ from core.base_cell import *
 ## ---------------------------------------------------------------------------------------------
 
 
-
-
 # ---------------------------------------------------------------------------------------------
-# For single current mirror test
-m0 = Mos({'id': 'A', 'fins': 10, 'fingers': 4, 'stack': 1, 'multiplier': 3, 'mos_type': "P"})
-m1 = Mos({'id': 'A', 'fins': 10, 'fingers': 4, 'stack': 1, 'multiplier': 3, 'mos_type': "P"})
-c1 = current_mirror(m0, m1, "test_cm")
-c1.create_layout(3, labels=("d0", "d1", "s"), con=[1, 1, 2])
-write_gds(c1.cell, "nmos")
+# # For single current mirror test
+# m0 = Mos({'id': 'A', 'fins': 5, 'fingers': 8, 'stack': 1, 'multiplier': 2, 'mos_type': "N"})
+# m1 = Mos({'id': 'A', 'fins': 5, 'fingers': 8, 'stack': 1, 'multiplier': 2, 'mos_type': "N"})
+# c1 = current_mirror(m0, m1, "test_cm")
+# c1.create_layout(0, labels=("d0", "d1", "s"), con=[1, 1, 1])
+# write_gds(c1.cell, "nmos")
 
 
 # matplotlib.use('TkAgg')
@@ -68,17 +66,12 @@ write_gds(c1.cell, "nmos")
 # ---------------------------------------------------------------------------------------------
 
 
-
-
-
 # For single differential pair test
-# m0 = Mos({'id': 'A', 'fins': 10, 'fingers': 4, 'stack': 2, 'multiplier': 1, 'mos_type': "N"})
-# m1 = Mos({'id': 'A', 'fins': 10, 'fingers': 4, 'stack': 2, 'multiplier': 1, 'mos_type': "N"})
-# c1 = differential_pair(m0, m1, "test_dp")
-# c1.create_layout(0)
-# write_gds(c1.cell, "nmos_dp")
-
-
+m0 = Mos({'id': 'A', 'fins': 10, 'fingers': 8, 'stack': 2, 'multiplier': 2, 'mos_type': "N"})
+m1 = Mos({'id': 'A', 'fins': 10, 'fingers': 8, 'stack': 2, 'multiplier': 2, 'mos_type': "N"})
+c1 = differential_pair(m0, m1, "test_dp")
+c1.create_layout(1, labels=("b", "g0", "g1", "d0", "d1", "s"), con=[2, 2, 2]) # connectors d0, d1, s
+write_gds(c1.cell, "nmos_dp")
 
 
 # generate_cm_layouts(10, 10, 2, "N", source_first=True)

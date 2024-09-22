@@ -11,7 +11,7 @@ from shapely.geometry import Polygon
 import numpy as np
 
 class current_mirror:
-    def __init__(self, m0: Mos, m1: dict, cell_name: str):
+    def __init__(self, m0: Mos, m1: Mos, cell_name: str):
         assert m0.fins >= 2, "Number of fins must be greater than 1"
         assert m0.stack == m1.stack
         assert m0.fins == m1.fins, "fins must be the same"
@@ -276,24 +276,82 @@ class current_mirror:
 
 
             elif pattern == 5:  # Common-Centroid -----------------------------------------
-                m0 = Mos({'id': 'A', 'fins': self.m0.fins, 'fingers': 1, 'stack': self.m0.stack,
-                          'multiplier': self.m0.multiplier, 'mos_type': self.m0.mos_type})
+                m = Mos({'id': 'A', 'fins': self.m0.fins, 'fingers': 1, 'stack': self.m0.stack,
+                         'multiplier': self.m0.multiplier, 'mos_type': self.m0.mos_type})
 
                 for i in range(self.total_fingers):
-                    cell_x, c_pi = create_mos(m0, con=[0, 0, 0, 0], orientation="V", fabric_on=False)
-                    add_transformed_polygons(cell_x, cell_i, (i * (2 * lp['poly']['dummies'] + self.stack * 1 - 1) * lp['poly']['pitch'], 0))
+                    cell_x = create_empty_cell("temp", unit=1e-9, precision=1e-12)
+                    points = create_base_layout(cell_x, m.fingers, m.fins, m.mos_type, stack=m.stack,
+                                                multiplier=m.multiplier, orientation="V")
+
+                    x_offset = (2 * lp['poly']['dummies'] + self.stack - 1) * lp['poly']['pitch']
+                    add_transformed_polygons(cell_x, cell_i, (i * x_offset, 0))
+                    lab_ = ["d0", "d1"]
+                    con_ = [con[0], con[1]]
+
+                    for p, pnt in enumerate(points):
+                        l = divide_line(pnt["p0"][0][1], pnt["p1"][0][1], con[0] + con[1] + con[2], C.m_m_ext, "M2")
+                        ln = (self.stack) * lp["M2"]["pitch"] + lp["M2"]["width"]
+                        xi = pnt["s"][0][0] - C.m_m_ext + i * x_offset
+
+                        for j in range(con_[p % 2]):
+                            rect_d0 = [[xi, l[j]], [xi + ln + 2 * C.m_m_ext, l[j] + lp["M2"]["width"]]]
+                            add_metal(cell_i, P(xi, l[j]), ln + 2 * C.m_m_ext, "H", "M2")
+                            contact_rects.append(CR(lab_[p % 2], rect_d0))
+                            if self.m0.fingers//2<=i< self.m0.fingers//2 + self.m1.fingers:
+                                add_via(cell_i, [pnt["d"][0][0] + i * x_offset, l[j]], "V1")
+
+                        for j in range(con_[(p + 1) % 2]):
+                            rect_d1 = [[xi, l[con_[p % 2] + j]],
+                                       [xi + ln + 2 * C.m_m_ext, l[con_[p % 2] + j] + lp["M2"]["width"]]]
+                            add_metal(cell_i, P(xi, l[con_[p % 2] + j]), ln + 2 * C.m_m_ext, "H", "M2")
+                            contact_rects.append(CR(lab_[(p + 1) % 2], rect_d1))
+                            if 0<=i<self.m0.fingers//2 or self.m1.fingers + self.m0.fingers//2 <= i < self.total_fingers:
+                                add_via(cell_i, [pnt["d"][0][0] + i * x_offset, l[con[1] + j]], "V1")
+
+                        for j in range(con[2]):
+                            rect_ds = [[xi, l[con[1] + con[0] + j]],
+                                       [xi + ln + 2 * C.m_m_ext, l[con[1] + con[0] + j] + lp["M2"]["width"]]]
+                            add_metal(cell_i, P(xi, l[con[1] + con[0] + j]), ln + 2 * C.m_m_ext, "H", "M2")
+                            contact_rects.append(CR("s", rect_ds))
+                            add_via(cell_i, [pnt["s"][0][0] + i * x_offset, l[con[1] + con[0] + j]], "V1")
+
+                        # gate
+                        xi = pnt["s"][0][0] - C.m_m_ext + i * x_offset
+                        yi = pnt["g"][0][1]
+                        rect_g = [[xi, yi], [xi + ln + 2 * C.m_m_ext, yi + lp["M2"]["width"]]]
+                        add_metal(cell_i, P(xi, yi), ln + 2 * C.m_m_ext, "H", "M2")
+                        contact_rects.append(CR("g", rect_g))
+                        rect = [[pnt["g"][0][0] + i * x_offset, pnt["g"][0][1]],
+                                [pnt["g"][0][0] + self.stack * lp["M1"]["pitch"] - lp["M1"]["width"] + i * x_offset,
+                                 pnt["g"][0][1] + 32]]
+                        fill_area_vias(cell_i, rect, "V1")
+
+                        # bulk
+                        if pnt["b"]:
+                            xi = pnt["s"][0][0] - C.m_m_ext + i * x_offset
+                            yi = pnt["b"][0][1] + 4
+                            rect_g = [[xi, yi], [xi + ln + 2 * C.m_m_ext, yi + lp["M2"]["width"]]]
+                            add_metal(cell_i, P(xi, yi), ln + 2 * C.m_m_ext, "H", "M2")
+                            contact_rects.append(CR("b", rect_g))
+                            add_via(cell_i, [pnt["b"][0][0] + i * x_offset + 24, yi], "V1")
+
+                for i in range(len(contact_rects)):
+                    for j in range(i + 1, len(contact_rects)):
+                        ci = contact_rects[i]
+                        cj = contact_rects[j]
+                        if ((ci.rect[1][0] - ci.rect[0][0]) > (ci.rect[1][1] - ci.rect[0][1])) and (
+                                (cj.rect[1][0] - cj.rect[0][0]) > (cj.rect[1][1] - cj.rect[0][1])):
+                            if set([ci.rect[0][1], ci.rect[1][1]]) == set([cj.rect[0][1], cj.rect[1][1]]) and \
+                                    ci.rect[1][0] < cj.rect[0][0]:
+                                bridge_rect = [[ci.rect[1][0] - 10, ci.rect[0][1]], [cj.rect[0][0] + 10, cj.rect[1][1]]]
+                                add_metal(cell_i, P(bridge_rect[0][0], bridge_rect[0][1]),
+                                          bridge_rect[1][0] - bridge_rect[0][0], "H", "M2")
+                                contact_rects[i].rect[1][0] = contact_rects[j].rect[1][0]
+                                contact_rects[j].id = "x"
+                                contact_rects.append(CR(ci.id, bridge_rect))
 
 
-
-        # for cr in contact_rects:
-        #     print(cr.id, cr.rect)
-        #
-        # c_s, s_s   = [[0,0],[0,0]],[[0,0],[0,0]]
-        # c_d0, s_d0 = [[0,0],[0,0]],[[0,0],[0,0]]
-        # c_d1, s_d1 = [[0,0],[0,0]],[[0,0],[0,0]]
-        # c_b, s_b   = [[0,0],[0,0]],[[0,0],[0,0]]
-        # c_g, s_g   = [[0,0],[0,0]],[[0,0],[0,0]]
-#
 # # -------------- Adding Labels ---------------------------------------------
         rect_s = []
         rect_b = []
@@ -415,7 +473,7 @@ class current_mirror:
                      elif cc.metal == "M2" and cc.id == "b":
                          add_vias_at_recti_v_rectj(cell_i, rect_s_b, cc.rect, "M2")
 
-        if pattern == 3:
+        if pattern == 3 or pattern == 5:
             p = cell_i.bounding_box()
             x_l = divide_line(p[0][0], p[1][0], con[0]+con[1]+con[2], 20, "M3")
 
@@ -431,7 +489,6 @@ class current_mirror:
 
             for i in range(con[1]):
                 rd1 = [[x_l[con[0]+con[2]+i], s_d1[0][1]-C.m_m_ext], [x_l[con[0]+con[2]+i]+lp["M2"]["width"], s_d1[1][1]+C.m_m_ext]]
-                print("yes:", s_d1[1][1]-s_d1[0][1])
                 add_metal(cell_i, P(rd1[0][0], rd1[0][1]), rd1[1][1]-rd1[0][1], "V", "M3")
                 contact_rects.append(CR("d1", rd1, "M3"))
 
@@ -452,26 +509,13 @@ class current_mirror:
         # -------------------------------------------------------------------------------------
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         # -------- poly and fins fabric inclusion ------------------------------------------
         p = cell_i.bounding_box()
         poly_n = math.ceil((p[1][0] - p[0][0]) / lp["poly"]["pitch"]) - 1
         fin_n = math.ceil((p[1][1] - p[0][1]) // lp["fins"]["pitch"])
         x_ = 0
         y_ = 0
+
         if fabric_on:
             create_fabric(self.cell, poly_n, fin_n)
             x_ = (0 + 1) * (lp['poly']['dummies'] - 1) * lp['poly']['pitch'] + 23 + lp['poly']['width'] / 2

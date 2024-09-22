@@ -43,12 +43,19 @@ def add_region_array(cell, bottom_left_coord, dimension, pitch, number, directio
             y_i += i*pitch
 
 
-def add_metal(cell, pos, length, direction, name):
+def add_metal(cell, pos, length, direction, name, return_rect=False):
     m_thickness = lp[name]['thickness']
+    rect = 0
     if direction == "H":
-        add_region(cell, (pos.x, pos.y), (pos.x + length, pos.y+m_thickness), name)
+        r = [[pos.x, pos.y], [pos.x + length, pos.y+m_thickness]]
     else:
-        add_region(cell, (pos.x, pos.y), (pos.x + m_thickness, pos.y + length), name)
+        r = [[pos.x, pos.y], [pos.x + m_thickness, pos.y + length]]
+
+    add_region(cell, (r[0][0], r[0][1]), (r[1][0], r[1][1]), name)
+
+    if return_rect:
+        return r
+
 
 def add_v_metal_array(cell,pos, length: float, pitch:float, number: int, name: str):
     x_i = pos.x
@@ -297,6 +304,11 @@ def divide_line(xi:int, xf:int, n: int, ext: float, m: str):
     return li
 
 
+def m1_array(xi, xf, stack=1, n = 1):
+    delta = xf-xi
+    n = ((delta - lp["M1"]["width"])//(stack*lp["M1"]["pitch"])) + 1
+    arr = [xi+i*lp["M1"]["pitch"] for i in range(n)]
+    return arr
 
 
 class Mos:
